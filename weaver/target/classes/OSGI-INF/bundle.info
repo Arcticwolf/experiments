@@ -1,0 +1,19 @@
+\u001B[1mSYNOPSIS\u001B[0m:
+
+    OpenEngSB :: Experiments :: Weaver
+
+    Provides a weavin service.
+
+Maven URL:
+
+    \u001B[33mmvn:org.openengsb.experiments/org.openengsb.experiments.weaver/3.0.0-SNAPSHOT\u001B[0m
+
+\u001B[1mDESCRIPTION\u001B[0m:
+
+    Provides a weavin service.
+
+\u001B[1mSEE\u001B[0m \u001B[1mALSO\u001B[0m:
+
+    Manual section of the OpenEngSB user guide.
+
+

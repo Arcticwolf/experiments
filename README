@@ -1,0 +1,10 @@
+This is a test file to test the functionality of weaving hooks.
+
+There are three bundles in this project.
+
+Weaver - Provides a weaving hook service.
+Provider - Provides a model object which should be used by other bundles.
+User - Uses and extends the model from the provider bundle.
+
+This bundles are tested in a karaf 3 environment. If you want to test it
+yourself, you have to add and install them in the order Weaver, Provider, User.

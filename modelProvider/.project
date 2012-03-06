@@ -1,0 +1,17 @@
+<projectDescription>
+  <name>org.openengsb.experiments.provider</name>
+  <comment>Provides an abstract model for others to import</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>net.sf.eclipsecs.core.CheckstyleBuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
+  </natures>
+</projectDescription>

@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1331039885359
+Build-Jdk: 1.6.0_30
+Built-By: felix
+Bundle-Activator: org.openengsb.experiments.provider.internal.Activator
+Bundle-Description: Provides an abstract model for others to import
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenEngSB :: Experiments :: ModelProvider
+Bundle-SymbolicName: org.openengsb.experiments.org.openengsb.experiments
+ .provider
+Bundle-Version: 3.0.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+DynamicImport-Package: *
+Export-Package: org.openengsb.experiments.provider.model;version="3.0.0.
+ SNAPSHOT"
+Import-Package: org.osgi.framework.hooks.weaving;version="[1.0.0,2.0.0)"
+Tool: Bnd-1.50.0

@@ -1,0 +1,19 @@
+<projectDescription>
+  <name>org.openengsb.experiments.user</name>
+  <comment>A bundle which uses the model provided the ModelProvider</comment>
+  <projects>
+    <project>org.openengsb.experiments.provider</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>net.sf.eclipsecs.core.CheckstyleBuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
+  </natures>
+</projectDescription>

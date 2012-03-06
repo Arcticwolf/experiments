@@ -1,0 +1,11 @@
+<classpath>
+  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
+  <classpathentry kind="src" path="src/main/resources" including="**/*" excluding="**/*.java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="var" path="M2_REPO/org/osgi/org.osgi.core/4.3.0/org.osgi.core-4.3.0.jar" sourcepath="M2_REPO/org/osgi/org.osgi.core/4.3.0/org.osgi.core-4.3.0-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/home/felix/.m2/repository/org/osgi/org.osgi.core/4.3.0/org.osgi.core-4.3.0-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+</classpath>
