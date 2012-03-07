@@ -17,9 +17,16 @@
 
 package org.openengsb.experiments.weaver.internal;
 
-import java.lang.reflect.Method;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-import org.osgi.framework.Bundle;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.NotFoundException;
+
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
 
@@ -28,20 +35,63 @@ public class TestService implements WeavingHook {
     @Override
     public void weave(WovenClass wovenClass) {
         System.out.println("Class to weave by weaver:\"" + wovenClass.getClassName() + "\"");
-        if (wovenClass.getClassName().equals("org.openengsb.experiments.provider.model.TestObject")) {
-            Bundle bundle = wovenClass.getBundleWiring().getBundle();
-            System.out.println(bundle.getSymbolicName());
-            try {
-                Class<?> clazz = wovenClass.getBundleWiring().getClassLoader().loadClass(wovenClass.getClassName());
-                for (Method method : clazz.getMethods()) {
-                    System.out.println(method.getName());
-                }
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
+        System.out.println("javassist says:\"" + getNameOfByteCode(wovenClass.getBytes()) + "\"");
+    }
+
+    public String getNameOfByteCode(byte[] byteCode) {
+        try {
+            ClassPool cp = ClassPool.getDefault();
+            InputStream stream = new ByteArrayInputStream(byteCode);
+            CtClass cc = cp.makeClass(stream);
+            return cc.getClassFile().getName();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        } catch (RuntimeException e1) {
+            e1.printStackTrace();
         }
+        return "";
+    }
+    
+    public Class<?> getClassOfByteCode(byte[] byteCode) {
+        try {
+            ClassPool cp = ClassPool.getDefault();
+            InputStream stream = new ByteArrayInputStream(byteCode);
+            CtClass cc = cp.makeClass(stream);
+            Class<?> clazz = cc.toClass();
+            return clazz;
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        } catch (RuntimeException e1) {
+            e1.printStackTrace();
+        } catch (CannotCompileException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public Object addLogOutput(byte[] byteCode, String methodName) {
+        try {
+            ClassPool cp = ClassPool.getDefault();
+            InputStream stream = new ByteArrayInputStream(byteCode);
+            CtClass cc = cp.makeClass(stream);
+            CtMethod m = cc.getDeclaredMethod(methodName);
+            m.insertBefore("System.out.println(\"blub\");");
+            Class<?> clazz = cc.toClass();
+            return clazz.newInstance();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        } catch (RuntimeException e1) {
+            e1.printStackTrace();
+        } catch (CannotCompileException e) {
+            e.printStackTrace();
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
