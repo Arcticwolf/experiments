@@ -23,18 +23,48 @@ import java.io.InputStream;
 import java.util.List;
 
 import javassist.CannotCompileException;
+import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.LoaderClassPath;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
 import org.openengsb.experiments.provider.model.Model;
 import org.openengsb.experiments.provider.model.TestModel;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
 
 public class TestService implements WeavingHook {
+    private ClassPool cp = ClassPool.getDefault();
+
+    public TestService() {
+        cp = ClassPool.getDefault();
+    }
+
+    public TestService(BundleContext context) {
+        cp = ClassPool.getDefault();
+        cp.appendClassPath(new LoaderClassPath(context.getBundle().getClass().getClassLoader()));
+
+        for (Bundle bundle : context.getBundles()) {
+            if (bundle.getLocation().equals("mvn:org.openengsb.experiments/org.openengsb.experiments.provider/"
+                    + "3.0.0-SNAPSHOT")) {
+                Class<?> class1;
+                try {
+                    class1 = bundle.loadClass("org.openengsb.experiments.provider.model.Model");
+                    cp.insertClassPath(new ClassClassPath(class1.getClass()));
+                    class1 = bundle.loadClass("org.openengsb.experiments.provider.model.TestModel");
+                    cp.insertClassPath(new ClassClassPath(class1.getClass()));
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
 
     @Override
     public void weave(WovenClass wovenClass) {
@@ -44,13 +74,11 @@ public class TestService implements WeavingHook {
             return;
         }
         System.out.println("Class to weave by weaver:\"" + className + "\"");
-        // System.out.println("javassist says:\"" + getNameOfByteCode(wovenClass.getBytes()) + "\"");
         wovenClass.setBytes(extendModelInterface(wovenClass.getBytes()));
     }
 
     public String getNameOfByteCode(byte[] byteCode) {
         try {
-            ClassPool cp = ClassPool.getDefault();
             InputStream stream = new ByteArrayInputStream(byteCode);
             CtClass cc = cp.makeClass(stream);
             return cc.getClassFile().getName();
@@ -64,7 +92,6 @@ public class TestService implements WeavingHook {
 
     public byte[] extendModelInterface(byte[] byteCode) {
         try {
-            ClassPool cp = ClassPool.getDefault();
             InputStream stream = new ByteArrayInputStream(byteCode);
             CtClass cc = cp.makeClass(stream);
             cp.importPackage("java.util");
@@ -77,7 +104,7 @@ public class TestService implements WeavingHook {
             CtClass inter = cp.get(TestModel.class.getName());
             cc.addInterface(inter);
 
-            CtMethod m = generateGetModelObjects(cp, cc);
+            CtMethod m = generateGetModelObjects(cc);
             cc.addMethod(m);
             cc.setModifiers(cc.getModifiers() & ~Modifier.ABSTRACT);
             return cc.toBytecode();
@@ -89,10 +116,6 @@ public class TestService implements WeavingHook {
             e.printStackTrace();
         } catch (NotFoundException e) {
             e.printStackTrace();
-            // } catch (InstantiationException e) {
-            // e.printStackTrace();
-            // } catch (IllegalAccessException e) {
-            // e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -101,7 +124,6 @@ public class TestService implements WeavingHook {
 
     public Object appendInterfaceIfModelAnnotation(byte[] byteCode) {
         try {
-            ClassPool cp = ClassPool.getDefault();
             InputStream stream = new ByteArrayInputStream(byteCode);
             CtClass cc = cp.makeClass(stream);
             if (cc.getAnnotation(Model.class) == null) {
@@ -112,7 +134,7 @@ public class TestService implements WeavingHook {
             cp.importPackage("java.util");
             cp.importPackage("org.openengsb.experiments.provider.model");
 
-            CtMethod m = generateGetModelObjects(cp, cc);
+            CtMethod m = generateGetModelObjects(cc);
             cc.addMethod(m);
             cc.setModifiers(cc.getModifiers() & ~Modifier.ABSTRACT);
             Class<?> clazz = cc.toClass();
@@ -135,9 +157,9 @@ public class TestService implements WeavingHook {
         return null;
     }
 
-    private CtMethod generateGetModelObjects(ClassPool pool, CtClass clazz) throws NotFoundException,
+    private CtMethod generateGetModelObjects(CtClass clazz) throws NotFoundException,
         CannotCompileException {
-        CtMethod m = new CtMethod(pool.get(List.class.getName()), "getModelObjects", new CtClass[]{}, clazz);
+        CtMethod m = new CtMethod(cp.get(List.class.getName()), "getModelObjects", new CtClass[]{}, clazz);
 
         StringBuilder builder = new StringBuilder();
         builder.append("{ \nList elements = new ArrayList();\n");

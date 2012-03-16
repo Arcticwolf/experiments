@@ -28,7 +28,7 @@ public class Activator implements BundleActivator {
     
     @Override
     public void start(BundleContext context) throws Exception {
-        TestService service = new TestService();
+        TestService service = new TestService(context);
         weavingHookService = context.registerService(WeavingHook.class.getName(), service, null);
     }
 
