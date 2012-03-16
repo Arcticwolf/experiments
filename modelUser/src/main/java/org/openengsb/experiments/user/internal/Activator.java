@@ -17,7 +17,8 @@
 
 package org.openengsb.experiments.user.internal;
 
-import org.openengsb.experiments.provider.model.TestObject;
+import org.openengsb.experiments.provider.model.TestModel;
+import org.openengsb.experiments.provider.model.TestModelObject;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -25,11 +26,19 @@ public class Activator implements BundleActivator {
     @Override
     public void start(BundleContext context) throws Exception {
         System.out.println("Start User");
-        TestObject object = new TestObject();
-        object.shout();
+        TestObject2 object = new TestObject2();
+//        object.shout();
+        object.setId(42);
+        object.setName("test");
+        System.out.println("see if waving worked");
+        TestModel model = (TestModel) object;
         
-        TestObject2 test = new TestObject2();
-        test.shout();
+        for (TestModelObject obj : model.getModelObjects()) {
+            System.out.println(obj.getKey() + ":" + obj.getValue());
+        }
+        System.out.println("User testcase ended");
+//        TestObject2 test = new TestObject2();
+//        test.shout();
     }
 
     @Override

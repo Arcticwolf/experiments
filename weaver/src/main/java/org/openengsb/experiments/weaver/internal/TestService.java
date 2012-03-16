@@ -20,13 +20,17 @@ package org.openengsb.experiments.weaver.internal;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.Modifier;
 import javassist.NotFoundException;
 
+import org.openengsb.experiments.provider.model.Model;
+import org.openengsb.experiments.provider.model.TestModel;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
 
@@ -34,8 +38,14 @@ public class TestService implements WeavingHook {
 
     @Override
     public void weave(WovenClass wovenClass) {
-        System.out.println("Class to weave by weaver:\"" + wovenClass.getClassName() + "\"");
-        System.out.println("javassist says:\"" + getNameOfByteCode(wovenClass.getBytes()) + "\"");
+        String className = wovenClass.getClassName();
+        if (!className.contains("openengsb")
+                || className.equals("org.openengsb.experiments.provider.model.Model")) {
+            return;
+        }
+        System.out.println("Class to weave by weaver:\"" + className + "\"");
+        // System.out.println("javassist says:\"" + getNameOfByteCode(wovenClass.getBytes()) + "\"");
+        wovenClass.setBytes(extendModelInterface(wovenClass.getBytes()));
     }
 
     public String getNameOfByteCode(byte[] byteCode) {
@@ -51,31 +61,60 @@ public class TestService implements WeavingHook {
         }
         return "";
     }
-    
-    public Class<?> getClassOfByteCode(byte[] byteCode) {
+
+    public byte[] extendModelInterface(byte[] byteCode) {
         try {
             ClassPool cp = ClassPool.getDefault();
             InputStream stream = new ByteArrayInputStream(byteCode);
             CtClass cc = cp.makeClass(stream);
-            Class<?> clazz = cc.toClass();
-            return clazz;
+            cp.importPackage("java.util");
+            cp.importPackage("org.openengsb.experiments.provider.model");
+
+            if (cc.getAnnotation(Model.class) == null) {
+                return byteCode;
+            }
+            System.out.println("we have got a model to enhance :-)");
+            CtClass inter = cp.get(TestModel.class.getName());
+            cc.addInterface(inter);
+
+            CtMethod m = generateGetModelObjects(cp, cc);
+            cc.addMethod(m);
+            cc.setModifiers(cc.getModifiers() & ~Modifier.ABSTRACT);
+            return cc.toBytecode();
         } catch (IOException e1) {
             e1.printStackTrace();
         } catch (RuntimeException e1) {
             e1.printStackTrace();
         } catch (CannotCompileException e) {
             e.printStackTrace();
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            // } catch (InstantiationException e) {
+            // e.printStackTrace();
+            // } catch (IllegalAccessException e) {
+            // e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
-        return null;
+        return byteCode;
     }
-    
-    public Object addLogOutput(byte[] byteCode, String methodName) {
+
+    public Object appendInterfaceIfModelAnnotation(byte[] byteCode) {
         try {
             ClassPool cp = ClassPool.getDefault();
             InputStream stream = new ByteArrayInputStream(byteCode);
             CtClass cc = cp.makeClass(stream);
-            CtMethod m = cc.getDeclaredMethod(methodName);
-            m.insertBefore("System.out.println(\"blub\");");
+            if (cc.getAnnotation(Model.class) == null) {
+                return cc.toClass().newInstance();
+            }
+            CtClass inter = cp.get(TestModel.class.getName());
+            cc.addInterface(inter);
+            cp.importPackage("java.util");
+            cp.importPackage("org.openengsb.experiments.provider.model");
+
+            CtMethod m = generateGetModelObjects(cp, cc);
+            cc.addMethod(m);
+            cc.setModifiers(cc.getModifiers() & ~Modifier.ABSTRACT);
             Class<?> clazz = cc.toClass();
             return clazz.newInstance();
         } catch (IOException e1) {
@@ -90,8 +129,29 @@ public class TestService implements WeavingHook {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
+    private CtMethod generateGetModelObjects(ClassPool pool, CtClass clazz) throws NotFoundException,
+        CannotCompileException {
+        CtMethod m = new CtMethod(pool.get(List.class.getName()), "getModelObjects", new CtClass[]{}, clazz);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("{ \nList elements = new ArrayList();\n");
+        for (CtMethod method : clazz.getDeclaredMethods()) {
+            String methodName = method.getName();
+            String property = methodName.substring(3).toLowerCase();
+            if (methodName.startsWith("get") && !methodName.equals("getModelObjects")) {
+                builder.append("elements.add(new TestModelObject(").append("\"");
+                builder.append(property).append("\", ").append(methodName).append("(), ");
+                builder.append(methodName).append("().getClass()));\n");
+            }
+        }
+        builder.append("return elements; } ");
+        m.setBody(builder.toString());
+        return m;
+    }
 }

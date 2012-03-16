@@ -18,10 +18,31 @@
 package org.openengsb.experiments.user.internal;
 
 import org.openengsb.experiments.provider.model.AbstractTestObject;
+import org.openengsb.experiments.provider.model.Model;
 
+@Model
 public class TestObject2 extends AbstractTestObject {
 
+    private String name;
+    private Integer id;
+    
     public TestObject2() {
         System.out.println("TestObject2 generated");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
