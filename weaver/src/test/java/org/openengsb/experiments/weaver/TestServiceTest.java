@@ -47,17 +47,17 @@ public class TestServiceTest {
         assert string.equals("org.openengsb.experiments.weaver.internal.Activator");
     }
 
-//    @Test
+    @Test
     public void test() {
         File f = new File("target/test-classes/org/openengsb/experiments/weaver/TestObject2.class");
         byte[] bytes = getBytesOfFile(f);
         TestObject2 object = (TestObject2) service.appendInterfaceIfModelAnnotation(bytes);
         object.setName("blub");
         object.setId(42);
-        System.out.println(object instanceof TestModel);
         for (TestModelObject obj : ((TestModel) object).getModelObjects()) {
             System.out.println(obj.getKey() + ":" + obj.getValue());
         }
+        System.out.println("modelId=" + ((TestModel) object).getModelId());
     }
 
 }

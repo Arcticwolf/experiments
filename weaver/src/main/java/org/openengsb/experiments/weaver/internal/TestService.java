@@ -26,12 +26,14 @@ import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtField;
 import javassist.CtMethod;
 import javassist.LoaderClassPath;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
 import org.openengsb.experiments.provider.model.Model;
+import org.openengsb.experiments.provider.model.ModelId;
 import org.openengsb.experiments.provider.model.TestModel;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -158,7 +160,7 @@ public class TestService implements WeavingHook {
     }
 
     private CtMethod generateGetModelObjects(CtClass clazz) throws NotFoundException,
-        CannotCompileException {
+        CannotCompileException, ClassNotFoundException {
         CtMethod m = new CtMethod(cp.get(List.class.getName()), "getModelObjects", new CtClass[]{}, clazz);
 
         StringBuilder builder = new StringBuilder();
@@ -170,6 +172,14 @@ public class TestService implements WeavingHook {
                 builder.append("elements.add(new TestModelObject(").append("\"");
                 builder.append(property).append("\", ").append(methodName).append("(), ");
                 builder.append(methodName).append("().getClass()));\n");
+            }
+            if (methodName.startsWith("set") && method.getAnnotation(ModelId.class) != null) {
+                CtField field = new CtField(cp.get(String.class.getName()), "modelId", clazz);
+                clazz.addField(field);
+                method.insertAfter("modelId = \"\"+$1;");
+                CtMethod idGetter = new CtMethod(cp.get(String.class.getName()), "getModelId", new CtClass[]{}, clazz);
+                idGetter.setBody("{ return modelId; }");
+                clazz.addMethod(idGetter);
             }
         }
         builder.append("return elements; } ");
