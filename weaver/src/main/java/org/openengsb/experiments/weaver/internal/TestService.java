@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import javassist.CannotCompileException;
-import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
@@ -38,7 +37,6 @@ import javassist.bytecode.MethodInfo;
 import org.openengsb.experiments.provider.model.Model;
 import org.openengsb.experiments.provider.model.ModelId;
 import org.openengsb.experiments.provider.model.TestModel;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
@@ -54,15 +52,14 @@ public class TestService implements WeavingHook {
 
     public TestService(BundleContext context) {
         this();
-        cp.appendClassPath(new LoaderClassPath(context.getBundle().getClass().getClassLoader()));
         cp.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
     }
 
     @Override
     public void weave(WovenClass wovenClass) {
         String className = wovenClass.getClassName();
-        if (!className.contains("openengsb")
-                || className.equals("org.openengsb.experiments.provider.model.Model")) {
+        if (className.equals("org.openengsb.experiments.provider.model.Model")
+                || className.contains("javassist")) {
             return;
         }
         wovenClass.setBytes(extendModelInterface(wovenClass.getBytes()));
@@ -127,8 +124,8 @@ public class TestService implements WeavingHook {
             info.getAttribute(AnnotationsAttribute.visibleTag);
         return checkAnnotation(ainfo, ainfo2, annotationName);
     }
-    
-    private boolean checkAnnotation(AnnotationsAttribute invisible, AnnotationsAttribute visible, 
+
+    private boolean checkAnnotation(AnnotationsAttribute invisible, AnnotationsAttribute visible,
             String annotationName) {
         boolean exist1 = false;
         boolean exist2 = false;
