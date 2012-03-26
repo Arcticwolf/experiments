@@ -8,7 +8,7 @@ public class TestModelObject {
     public TestModelObject(String key, Object value, Class<?> type) {
         this.key = key;
         this.value = value;
-        this.setType(type);
+        this.type = type;
     }
     
     public String getKey() {

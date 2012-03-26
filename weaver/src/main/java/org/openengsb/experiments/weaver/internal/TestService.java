@@ -31,6 +31,9 @@ import javassist.CtMethod;
 import javassist.LoaderClassPath;
 import javassist.Modifier;
 import javassist.NotFoundException;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
+import javassist.bytecode.MethodInfo;
 
 import org.openengsb.experiments.provider.model.Model;
 import org.openengsb.experiments.provider.model.ModelId;
@@ -50,15 +53,17 @@ public class TestService implements WeavingHook {
     public TestService(BundleContext context) {
         cp = ClassPool.getDefault();
         cp.appendClassPath(new LoaderClassPath(context.getBundle().getClass().getClassLoader()));
+        cp.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
 
         for (Bundle bundle : context.getBundles()) {
-            if (bundle.getLocation().equals("mvn:org.openengsb.experiments/org.openengsb.experiments.provider/"
-                    + "3.0.0-SNAPSHOT")) {
+            if (bundle.getLocation().contains("org.openengsb.experiments.provider")) {
                 Class<?> class1;
                 try {
                     class1 = bundle.loadClass("org.openengsb.experiments.provider.model.Model");
                     cp.insertClassPath(new ClassClassPath(class1.getClass()));
                     class1 = bundle.loadClass("org.openengsb.experiments.provider.model.TestModel");
+                    cp.insertClassPath(new ClassClassPath(class1.getClass()));
+                    class1 = bundle.loadClass("org.openengsb.experiments.provider.model.ModelId");
                     cp.insertClassPath(new ClassClassPath(class1.getClass()));
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -99,7 +104,7 @@ public class TestService implements WeavingHook {
             cp.importPackage("java.util");
             cp.importPackage("org.openengsb.experiments.provider.model");
 
-            if (cc.getAnnotation(Model.class) == null) {
+            if (!hasAnnotation(cc, Model.class.getName())) {
                 return byteCode;
             }
             System.out.println("we have got a model to enhance :-)");
@@ -122,6 +127,37 @@ public class TestService implements WeavingHook {
             e.printStackTrace();
         }
         return byteCode;
+    }
+
+    private boolean hasAnnotation(CtClass clazz, String annotationName) {
+        ClassFile cf = clazz.getClassFile2();
+        AnnotationsAttribute ainfo = (AnnotationsAttribute)
+            cf.getAttribute(AnnotationsAttribute.invisibleTag);
+        AnnotationsAttribute ainfo2 = (AnnotationsAttribute)
+            cf.getAttribute(AnnotationsAttribute.visibleTag);
+        return checkAnnotation(ainfo, ainfo2, annotationName);
+    }
+
+    private boolean hasAnnotation(CtMethod method, String annotationName) {
+        MethodInfo info = method.getMethodInfo();
+        AnnotationsAttribute ainfo = (AnnotationsAttribute)
+            info.getAttribute(AnnotationsAttribute.invisibleTag);
+        AnnotationsAttribute ainfo2 = (AnnotationsAttribute)
+            info.getAttribute(AnnotationsAttribute.visibleTag);
+        return checkAnnotation(ainfo, ainfo2, annotationName);
+    }
+    
+    private boolean checkAnnotation(AnnotationsAttribute invisible, AnnotationsAttribute visible, 
+            String annotationName) {
+        boolean exist1 = false;
+        boolean exist2 = false;
+        if (invisible != null) {
+            exist1 = invisible.getAnnotation(annotationName) != null;
+        }
+        if (visible != null) {
+            exist2 = visible.getAnnotation(annotationName) != null;
+        }
+        return exist1 || exist2;
     }
 
     public Object appendInterfaceIfModelAnnotation(byte[] byteCode) {
@@ -173,7 +209,7 @@ public class TestService implements WeavingHook {
                 builder.append(property).append("\", ").append(methodName).append("(), ");
                 builder.append(methodName).append("().getClass()));\n");
             }
-            if (methodName.startsWith("set") && method.getAnnotation(ModelId.class) != null) {
+            if (methodName.startsWith("set") && hasAnnotation(method, ModelId.class.getName())) {
                 CtField field = new CtField(cp.get(String.class.getName()), "modelId", clazz);
                 clazz.addField(field);
                 method.insertAfter("modelId = \"\"+$1;");

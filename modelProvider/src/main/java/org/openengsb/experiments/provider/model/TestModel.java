@@ -6,4 +6,5 @@ public interface TestModel {
     
     List<TestModelObject> getModelObjects();
 
+    String getModelId();
 }

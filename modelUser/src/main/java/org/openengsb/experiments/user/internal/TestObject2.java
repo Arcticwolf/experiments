@@ -17,11 +17,11 @@
 
 package org.openengsb.experiments.user.internal;
 
-import org.openengsb.experiments.provider.model.AbstractTestObject;
 import org.openengsb.experiments.provider.model.Model;
+import org.openengsb.experiments.provider.model.ModelId;
 
 @Model
-public class TestObject2 extends AbstractTestObject {
+public class TestObject2 {
 
     private String name;
     private Integer id;
@@ -42,6 +42,7 @@ public class TestObject2 extends AbstractTestObject {
         return id;
     }
 
+    @ModelId
     public void setId(Integer id) {
         this.id = id;
     }

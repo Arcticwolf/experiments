@@ -27,18 +27,16 @@ public class Activator implements BundleActivator {
     public void start(BundleContext context) throws Exception {
         System.out.println("Start User");
         TestObject2 object = new TestObject2();
-//        object.shout();
         object.setId(42);
         object.setName("test");
         System.out.println("see if waving worked");
         TestModel model = (TestModel) object;
-        
+        System.out.println("got testmodel");
         for (TestModelObject obj : model.getModelObjects()) {
             System.out.println(obj.getKey() + ":" + obj.getValue());
         }
+        System.out.println("Id of the model is : " + model.getModelId());
         System.out.println("User testcase ended");
-//        TestObject2 test = new TestObject2();
-//        test.shout();
     }
 
     @Override
