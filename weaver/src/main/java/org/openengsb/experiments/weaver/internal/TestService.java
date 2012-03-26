@@ -48,29 +48,14 @@ public class TestService implements WeavingHook {
 
     public TestService() {
         cp = ClassPool.getDefault();
+        cp.importPackage("java.util");
+        cp.importPackage("org.openengsb.experiments.provider.model");
     }
 
     public TestService(BundleContext context) {
-        cp = ClassPool.getDefault();
+        this();
         cp.appendClassPath(new LoaderClassPath(context.getBundle().getClass().getClassLoader()));
         cp.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
-
-        for (Bundle bundle : context.getBundles()) {
-            if (bundle.getLocation().contains("org.openengsb.experiments.provider")) {
-                Class<?> class1;
-                try {
-                    class1 = bundle.loadClass("org.openengsb.experiments.provider.model.Model");
-                    cp.insertClassPath(new ClassClassPath(class1.getClass()));
-                    class1 = bundle.loadClass("org.openengsb.experiments.provider.model.TestModel");
-                    cp.insertClassPath(new ClassClassPath(class1.getClass()));
-                    class1 = bundle.loadClass("org.openengsb.experiments.provider.model.ModelId");
-                    cp.insertClassPath(new ClassClassPath(class1.getClass()));
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }
     }
 
     @Override
@@ -80,7 +65,6 @@ public class TestService implements WeavingHook {
                 || className.equals("org.openengsb.experiments.provider.model.Model")) {
             return;
         }
-        System.out.println("Class to weave by weaver:\"" + className + "\"");
         wovenClass.setBytes(extendModelInterface(wovenClass.getBytes()));
     }
 
@@ -101,13 +85,10 @@ public class TestService implements WeavingHook {
         try {
             InputStream stream = new ByteArrayInputStream(byteCode);
             CtClass cc = cp.makeClass(stream);
-            cp.importPackage("java.util");
-            cp.importPackage("org.openengsb.experiments.provider.model");
-
             if (!hasAnnotation(cc, Model.class.getName())) {
                 return byteCode;
             }
-            System.out.println("we have got a model to enhance :-)");
+            System.out.println("Model to enhance: " + cc.getName());
             CtClass inter = cp.get(TestModel.class.getName());
             cc.addInterface(inter);
 
@@ -169,8 +150,6 @@ public class TestService implements WeavingHook {
             }
             CtClass inter = cp.get(TestModel.class.getName());
             cc.addInterface(inter);
-            cp.importPackage("java.util");
-            cp.importPackage("org.openengsb.experiments.provider.model");
 
             CtMethod m = generateGetModelObjects(cc);
             cc.addMethod(m);
@@ -205,7 +184,7 @@ public class TestService implements WeavingHook {
             String methodName = method.getName();
             String property = methodName.substring(3).toLowerCase();
             if (methodName.startsWith("get") && !methodName.equals("getModelObjects")) {
-                builder.append("elements.add(new TestModelObject(").append("\"");
+                builder.append("elements.add(new TestModelObject(\"");
                 builder.append(property).append("\", ").append(methodName).append("(), ");
                 builder.append(methodName).append("().getClass()));\n");
             }
