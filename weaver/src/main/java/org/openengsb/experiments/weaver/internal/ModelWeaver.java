@@ -62,13 +62,22 @@ public class ModelWeaver implements WeavingHook {
                 || className.contains("javassist")) {
             return;
         }
-        wovenClass.setBytes(extendModelInterface(wovenClass.getBytes()));
+        try {
+            wovenClass.setBytes(extendModelInterface(wovenClass.getBytes()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (CannotCompileException e) {
+            e.printStackTrace();
+        }
+        finishWeaving(className);
+    }
+
+    private void finishWeaving(String className) {
         try {
             CtClass clazz = cp.get(className);
             if (clazz != null) {
                 clazz.defrost();
                 clazz.detach();
-                System.out.println(className + " got defrosted and detached");
             } else {
                 System.out.println(className + " couldn't get defrosted and detached");
             }
@@ -78,25 +87,12 @@ public class ModelWeaver implements WeavingHook {
         }
     }
 
-    public String getNameOfByteCode(byte[] byteCode) {
-        try {
-            InputStream stream = new ByteArrayInputStream(byteCode);
-            CtClass cc = cp.makeClass(stream);
-            return cc.getClassFile().getName();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (RuntimeException e1) {
-            e1.printStackTrace();
-        }
-        return "";
-    }
-
-    public byte[] extendModelInterface(byte[] byteCode) {
+    private CtClass doModelModifications(byte[] byteCode) {
         try {
             InputStream stream = new ByteArrayInputStream(byteCode);
             CtClass cc = cp.makeClass(stream);
             if (!hasAnnotation(cc, Model.class.getName())) {
-                return byteCode;
+                return cc;
             }
             System.out.println("Model to enhance: " + cc.getName());
             CtClass inter = cp.get(TestModel.class.getName());
@@ -105,7 +101,7 @@ public class ModelWeaver implements WeavingHook {
             CtMethod m = generateGetModelObjects(cc);
             cc.addMethod(m);
             cc.setModifiers(cc.getModifiers() & ~Modifier.ABSTRACT);
-            return cc.toBytecode();
+            return cc;
         } catch (IOException e1) {
             e1.printStackTrace();
         } catch (RuntimeException e1) {
@@ -117,7 +113,18 @@ public class ModelWeaver implements WeavingHook {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return byteCode;
+        return null;
+    }
+
+    public byte[] extendModelInterface(byte[] byteCode) throws IOException, CannotCompileException {
+        CtClass cc = doModelModifications(byteCode);
+        return cc.toBytecode();
+    }
+
+    public Object appendInterfaceIfModelAnnotation(byte[] byteCode) throws InstantiationException,
+        IllegalAccessException, CannotCompileException {
+        CtClass cc = doModelModifications(byteCode);
+        return cc.toClass().newInstance();
     }
 
     private boolean hasAnnotation(CtClass clazz, String annotationName) {
@@ -149,39 +156,6 @@ public class ModelWeaver implements WeavingHook {
             exist2 = visible.getAnnotation(annotationName) != null;
         }
         return exist1 || exist2;
-    }
-
-    public Object appendInterfaceIfModelAnnotation(byte[] byteCode) {
-        try {
-            InputStream stream = new ByteArrayInputStream(byteCode);
-            CtClass cc = cp.makeClass(stream);
-            if (cc.getAnnotation(Model.class) == null) {
-                return cc.toClass().newInstance();
-            }
-            CtClass inter = cp.get(TestModel.class.getName());
-            cc.addInterface(inter);
-
-            CtMethod m = generateGetModelObjects(cc);
-            cc.addMethod(m);
-            cc.setModifiers(cc.getModifiers() & ~Modifier.ABSTRACT);
-            Class<?> clazz = cc.toClass();
-            return clazz.newInstance();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (RuntimeException e1) {
-            e1.printStackTrace();
-        } catch (CannotCompileException e) {
-            e.printStackTrace();
-        } catch (NotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     private CtMethod generateGetModelObjects(CtClass clazz) throws NotFoundException,

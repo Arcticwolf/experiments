@@ -5,19 +5,15 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.junit.Before;
-import org.junit.Test;
 import org.openengsb.experiments.provider.model.TestModel;
 import org.openengsb.experiments.provider.model.TestModelObject;
 import org.openengsb.experiments.weaver.internal.ModelWeaver;
 
 public class ModelWeaverTest {
-
-    private File testfile;
     private ModelWeaver service;
 
     @Before
     public void initiate() {
-        testfile = new File("target/classes/org/openengsb/experiments/weaver/internal/Activator.class");
         service = new ModelWeaver();
     }
 
@@ -39,18 +35,12 @@ public class ModelWeaverTest {
         return new byte[0];
     }
 
-    // @Test
-    public void testGetClassName_shouldWork() {
-        byte[] bytes = getBytesOfFile(testfile);
-        String string = service.getNameOfByteCode(bytes);
-        assert string.equals("org.openengsb.experiments.weaver.internal.Activator");
-    }
-
 //    @Test
-    public void test() {
+    public void test() throws Exception {
         File f = new File("target/test-classes/org/openengsb/experiments/weaver/TestObject2.class");
         byte[] bytes = getBytesOfFile(f);
-        TestObject2 object = (TestObject2) service.appendInterfaceIfModelAnnotation(bytes);
+        TestObject2 object;
+        object = (TestObject2) service.appendInterfaceIfModelAnnotation(bytes);
         object.setName("blub");
         object.setId(42);
         for (TestModelObject obj : ((TestModel) object).getModelObjects()) {
