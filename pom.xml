@@ -46,6 +46,7 @@
     <module>weaver</module>
     <module>modelProvider</module>
     <module>modelUser</module>
+    <module>transformer</module>
   </modules>
 
   <build>
