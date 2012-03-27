@@ -8,17 +8,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openengsb.experiments.provider.model.TestModel;
 import org.openengsb.experiments.provider.model.TestModelObject;
-import org.openengsb.experiments.weaver.internal.TestService;
+import org.openengsb.experiments.weaver.internal.ModelWeaver;
 
-public class TestServiceTest {
+public class ModelWeaverTest {
 
     private File testfile;
-    private TestService service;
+    private ModelWeaver service;
 
     @Before
     public void initiate() {
         testfile = new File("target/classes/org/openengsb/experiments/weaver/internal/Activator.class");
-        service = new TestService();
+        service = new ModelWeaver();
     }
 
     private byte[] getBytesOfFile(File f) {

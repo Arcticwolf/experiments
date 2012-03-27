@@ -41,16 +41,16 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
 
-public class TestService implements WeavingHook {
+public class ModelWeaver implements WeavingHook {
     private ClassPool cp = ClassPool.getDefault();
 
-    public TestService() {
+    public ModelWeaver() {
         cp = ClassPool.getDefault();
         cp.importPackage("java.util");
         cp.importPackage("org.openengsb.experiments.provider.model");
     }
 
-    public TestService(BundleContext context) {
+    public ModelWeaver(BundleContext context) {
         this();
         cp.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
     }
@@ -63,6 +63,19 @@ public class TestService implements WeavingHook {
             return;
         }
         wovenClass.setBytes(extendModelInterface(wovenClass.getBytes()));
+        try {
+            CtClass clazz = cp.get(className);
+            if (clazz != null) {
+                clazz.defrost();
+                clazz.detach();
+                System.out.println(className + " got defrosted and detached");
+            } else {
+                System.out.println(className + " couldn't get defrosted and detached");
+            }
+        } catch (NotFoundException e) {
+            System.out.println(className + " couldn't get defrosted and detached. Reason: not found");
+            // ignore
+        }
     }
 
     public String getNameOfByteCode(byte[] byteCode) {
