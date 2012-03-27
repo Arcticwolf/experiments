@@ -19,6 +19,9 @@ public class FileWrapper {
     private int buffer = 2048;
     private String tempDir = System.getProperty("java.io.tmpdir") + File.separator + "OpenEngSBModelTemp";
     
+    public FileWrapper() {
+    }
+    
     public FileWrapper(File file) {
         this.file = file;
     }
@@ -47,8 +50,16 @@ public class FileWrapper {
         }
         return content;
     }
+    
+    public void setContent(byte[] content) {
+        this.content = content;
+    }
+    
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 
-    public String getFileName() {
+    public String getFilename() {
         if (filename == null) {
             return file.getName();
         }

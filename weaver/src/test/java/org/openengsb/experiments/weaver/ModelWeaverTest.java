@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.openengsb.experiments.provider.model.FileWrapper;
@@ -38,7 +39,7 @@ public class ModelWeaverTest {
         return new byte[0];
     }
 
-//    @Test
+    @Test
     public void test() throws Exception {
         File f = new File("target/test-classes/org/openengsb/experiments/weaver/TestObject2.class");
         byte[] bytes = getBytesOfFile(f);
@@ -62,6 +63,15 @@ public class ModelWeaverTest {
                 method.invoke(object, wrapper);
             }
         }
+        
+        wrapper = new FileWrapper(f);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        String wrapperJSON = mapper.writeValueAsString(wrapper);
+        FileWrapper test = mapper.readValue(wrapperJSON, FileWrapper.class);
+        
+        System.out.println("JSON works: " + test.getFilename() + "   " + test.getContent());
+        
         System.out.println("my idea works: " + object.getFile().getAbsolutePath());
     }
 
