@@ -39,7 +39,7 @@ public class ModelWeaverTest {
         return new byte[0];
     }
 
-    @Test
+//    @Test
     public void test() throws Exception {
         File f = new File("target/test-classes/org/openengsb/experiments/weaver/TestObject2.class");
         byte[] bytes = getBytesOfFile(f);
