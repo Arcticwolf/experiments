@@ -28,7 +28,7 @@ public class Activator implements BundleActivator {
     
     @Override
     public void start(BundleContext context) throws Exception {
-        ModelWeaver service = new ModelWeaver(context);
+        ModelWeaver service = new ModelWeaver();
         weavingHookService = context.registerService(WeavingHook.class.getName(), service, null);
     }
 
@@ -36,9 +36,4 @@ public class Activator implements BundleActivator {
     public void stop(BundleContext context) throws Exception {
         weavingHookService.unregister();
     }
-    
-    public String getTestString() {
-        return "bla";
-    }
-
 }

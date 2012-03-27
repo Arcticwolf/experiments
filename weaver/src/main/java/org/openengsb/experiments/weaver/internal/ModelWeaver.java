@@ -22,69 +22,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.openengsb.experiments.provider.model.Model;
+import org.openengsb.experiments.provider.model.ModelId;
+import org.openengsb.experiments.provider.model.TestModel;
+
 import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
-import javassist.LoaderClassPath;
 import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.MethodInfo;
 
-import org.openengsb.experiments.provider.model.Model;
-import org.openengsb.experiments.provider.model.ModelId;
-import org.openengsb.experiments.provider.model.TestModel;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.hooks.weaving.WeavingHook;
-import org.osgi.framework.hooks.weaving.WovenClass;
-
-public class ModelWeaver implements WeavingHook {
-    private ClassPool cp = ClassPool.getDefault();
-
-    public ModelWeaver() {
-        cp = ClassPool.getDefault();
-        cp.importPackage("java.util");
-        cp.importPackage("org.openengsb.experiments.provider.model");
-    }
-
-    public ModelWeaver(BundleContext context) {
-        this();
-        cp.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
-    }
+public class ModelWeaver extends Weaver {
 
     @Override
-    public void weave(WovenClass wovenClass) {
-        String className = wovenClass.getClassName();
-        if (className.equals("org.openengsb.experiments.provider.model.Model")
-                || className.contains("javassist")) {
-            return;
-        }
-        try {
-            wovenClass.setBytes(extendModelInterface(wovenClass.getBytes()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CannotCompileException e) {
-            e.printStackTrace();
-        }
-        finishWeaving(className);
+    public byte[] doActualWeaving(byte[] byteCode) throws IOException, CannotCompileException {
+        CtClass cc = doModelModifications(byteCode);
+        return cc.toBytecode();
     }
 
-    private void finishWeaving(String className) {
-        try {
-            CtClass clazz = cp.get(className);
-            if (clazz != null) {
-                clazz.defrost();
-                clazz.detach();
-            } else {
-                System.out.println(className + " couldn't get defrosted and detached");
-            }
-        } catch (NotFoundException e) {
-            System.out.println(className + " couldn't get defrosted and detached. Reason: not found");
-            // ignore
-        }
+    public Object appendInterfaceIfModelAnnotation(byte[] byteCode) throws InstantiationException,
+        IllegalAccessException, CannotCompileException {
+        CtClass cc = doModelModifications(byteCode);
+        return cc.toClass().newInstance();
     }
 
     private CtClass doModelModifications(byte[] byteCode) {
@@ -114,17 +77,6 @@ public class ModelWeaver implements WeavingHook {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public byte[] extendModelInterface(byte[] byteCode) throws IOException, CannotCompileException {
-        CtClass cc = doModelModifications(byteCode);
-        return cc.toBytecode();
-    }
-
-    public Object appendInterfaceIfModelAnnotation(byte[] byteCode) throws InstantiationException,
-        IllegalAccessException, CannotCompileException {
-        CtClass cc = doModelModifications(byteCode);
-        return cc.toClass().newInstance();
     }
 
     private boolean hasAnnotation(CtClass clazz, String annotationName) {
@@ -185,4 +137,5 @@ public class ModelWeaver implements WeavingHook {
         m.setBody(builder.toString());
         return m;
     }
+
 }
