@@ -4,6 +4,7 @@ public class ModelA {
     private String idA;
     private String testA;
     private String blubA;
+    private String blaA;
 
     public String getIdA() {
         return idA;
@@ -27,6 +28,14 @@ public class ModelA {
 
     public void setBlubA(String blubA) {
         this.blubA = blubA;
+    }
+
+    public String getBlaA() {
+        return blaA;
+    }
+
+    public void setBlaA(String blaA) {
+        this.blaA = blaA;
     }
 
 }

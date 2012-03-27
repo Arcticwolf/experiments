@@ -52,4 +52,24 @@ public class TransformingServiceTest {
         assert result.getTestB().equals("test1");
         assert result.getBlubB().equals("test2");
     }
+    
+    @Test
+    public void test3() {
+        TransformingDescription desc = new TransformingDescription(ModelA.class, ModelB.class);
+        desc.forwardField("idA", "idB");
+        desc.forwardField("testA", "testB");
+        desc.concatField("blubB", "#", "blubA", "blaA");
+        service.saveDescription(desc);
+        
+        ModelA model = new ModelA();
+        model.setIdA("test1");
+        model.setTestA("test2");
+        model.setBlubA("test3");
+        model.setBlaA("test4");
+
+        ModelB result = service.performTransformation(ModelB.class, ModelA.class, model);
+        assert result.getIdB().equals("test1");
+        assert result.getTestB().equals("test2");
+        assert result.getBlubB().equals("test3#test4");
+    }
 }

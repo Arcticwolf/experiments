@@ -32,9 +32,9 @@ public class TransformingService {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T performTransformation(Class<T> targetClass, Class<?> sourceClass, Object source) {
         try {
-            T result = targetClass.newInstance();
             TransformingDescription desc = null;
             for (TransformingDescription td : descriptions) {
                 if (td.getSource().equals(sourceClass) && td.getTarget().equals(targetClass)) {
@@ -43,32 +43,7 @@ public class TransformingService {
                 }
             }
             if (desc != null) {
-                for (TransformingStep step : desc.getTransformingSteps()) {
-                    try {
-                        switch (step.getOperation()) {
-                            case FORWARD:
-                                Method getter = sourceClass.getMethod(getGetterName(step.getSourceFields()[0]));
-                                Object object = getter.invoke(source);
-                                Method setter =
-                                    targetClass.getMethod(getSetterName(step.getTargetField()), object.getClass());
-                                setter.invoke(result, object);
-                                break;
-                            case CONCAT:
-                                break;
-                            default:
-                                System.out.println("not supplied operation: " + step.getOperation());
-                        }
-                    } catch (SecurityException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchMethodException e) {
-                        e.printStackTrace();
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return result;
+                return (T) doActualTransformationSteps(desc, source);
             }
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -76,6 +51,50 @@ public class TransformingService {
             e.printStackTrace();
         }
         throw new IllegalArgumentException("no description for this class pair defined");
+    }
+
+    private Object doActualTransformationSteps(TransformingDescription td, Object source)
+        throws InstantiationException, IllegalAccessException {
+        Object result = td.getTarget().newInstance();
+        Method getter;
+        Method setter;
+        Object object;
+        for (TransformingStep step : td.getTransformingSteps()) {
+            try {
+                switch (step.getOperation()) {
+                    case FORWARD:
+                        getter = td.getSource().getMethod(getGetterName(step.getSourceFields()[0]));
+                        object = getter.invoke(source);
+                        setter =
+                            td.getTarget().getMethod(getSetterName(step.getTargetField()), object.getClass());
+                        setter.invoke(result, object);
+                        break;
+                    case CONCAT:
+                        StringBuilder builder = new StringBuilder();
+                        for (String field : step.getSourceFields()) {
+                            if (builder.length() != 0) {
+                                builder.append(step.getOperationParam());
+                            }
+                            getter = td.getSource().getMethod(getGetterName(field));
+                            builder.append(getter.invoke(source));
+                        }
+                        setter = td.getTarget().getMethod(getSetterName(step.getTargetField()), String.class);
+                        setter.invoke(result, builder.toString());
+                        break;
+                    default:
+                        System.out.println("not supplied operation: " + step.getOperation());
+                }
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 
     private String getGetterName(String fieldname) {
