@@ -81,6 +81,23 @@ public class TransformingService {
                         setter = td.getTarget().getMethod(getSetterName(step.getTargetField()), String.class);
                         setter.invoke(result, builder.toString());
                         break;
+                    case SPLIT:
+                        getter = td.getSource().getMethod(getGetterName(step.getTargetField()));
+                        String split = (String) getter.invoke(source);
+                        String[] splits = split.split(step.getOperationParam());
+                        for (int i = 0; i < step.getSourceFields().length; i++) {
+                            if (splits.length <= i) {
+                                System.out.println("not enough split results for the target fields");
+                                break;
+                            }
+                            String field = step.getSourceFields()[i];
+                            setter = td.getTarget().getMethod(getSetterName(field), String.class);
+                            setter.invoke(result, splits[i]);
+                        }
+                        if (splits.length > step.getSourceFields().length) {
+                            System.out.println("too many split results for the target fields");
+                        }
+                        break;
                     default:
                         System.out.println("not supplied operation: " + step.getOperation());
                 }

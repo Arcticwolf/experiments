@@ -4,11 +4,6 @@ public enum TransformOperation {
     FORWARD,
     SPLIT,
     CONCAT,
-    ADD,
-    SUB,
-    MUL,
-    DIV,
     SUM,
-    PRODUCT,
-    MOD
+    PRODUCT
 }

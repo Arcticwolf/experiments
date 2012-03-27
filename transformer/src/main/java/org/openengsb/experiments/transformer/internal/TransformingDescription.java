@@ -41,6 +41,22 @@ public class TransformingDescription {
         steps.put(targetField, step);
     }
 
+    public void splitField(String sourceField, String splitString, String... targetFields) {
+        TransformingStep step = new TransformingStep();
+        step.setTargetField(sourceField);
+        step.setSourceFields(targetFields);
+        step.setOperationParam(splitString);
+        step.setOperation(TransformOperation.SPLIT);
+        StringBuilder key = new StringBuilder();
+        for (String target : targetFields) {
+            if (key.length() != 0) {
+                key.append("; ");
+            }
+            key.append(target);
+        }
+        steps.put(key.toString(), step);
+    }
+
     public List<TransformingStep> getTransformingSteps() {
         return new ArrayList<TransformingStep>(steps.values());
     }
