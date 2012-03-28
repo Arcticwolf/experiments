@@ -6,7 +6,7 @@ import org.openengsb.experiments.provider.model.Model;
 import org.openengsb.experiments.provider.model.ModelId;
 
 @Model
-public class TestObject2 {
+public class TryOutModel {
     private Integer id;
     private String name;
     private File file;

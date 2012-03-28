@@ -27,19 +27,18 @@
   </parent>
 
   <properties>
-    <bundle.symbolicName>org.openengsb.experiments.weaver</bundle.symbolicName>
-    <bundle.namespace>org.openengsb.experiments.weaver</bundle.namespace>
-    <jackson.version>1.9.3</jackson.version>
+    <bundle.symbolicName>org.openengsb.experiments.agent</bundle.symbolicName>
+    <bundle.namespace>org.openengsb.experiments.agent</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.openengsb.experiments</groupId>
-  <artifactId>org.openengsb.experiments.weaver</artifactId>
+  <artifactId>org.openengsb.experiments.agent</artifactId>
   <version>3.0.0-SNAPSHOT</version>
 
-  <name>OpenEngSB :: Experiments :: Weaver</name>
+  <name>OpenEngSB :: Experiments :: Agent</name>
 
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <description>
     Provides a weavin service.
@@ -75,32 +74,31 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <forkMode>once</forkMode>
-          <argLine>
-            -javaagent:${user.home}/.m2/repository/org/openengsb/experiments/org.openengsb.experiments.agent/${project.version}/org.openengsb.experiments.agent-${project.version}-jar-with-dependencies.jar
-          </argLine>
-          <useSystemClassloader>true</useSystemClassloader>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <!--
-              This import is required since the WS package relies heavily on reflection 
-              and loading of calling classes at runtime
-            -->
-            <Import-Package>org.osgi.framework.hooks.weaving;version='[1.0.0, 2.0.0)',
-                            org.openengsb.experiments.provider.model</Import-Package>
-            <DynamicImport-Package>*</DynamicImport-Package>
-            <Bundle-Activator>org.openengsb.experiments.weaver.internal.Activator</Bundle-Activator>
-          </instructions>
-        </configuration>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <archive>
+                <!--<manifest>
+                  <mainClass>name.dhruba.javaagent.MyMainClass</mainClass>
+                </manifest>-->
+                <manifestEntries>
+                  <Premain-Class>org.openengsb.experiments.agent.MyAgent</Premain-Class> 
+                  <!-- <Agent-Class>org.openengsb.experiments.agent.MyAgent</Agent-Class> -->
+                  <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                  <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                </manifestEntries>
+              </archive>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -126,26 +124,6 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-mapper-asl</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-xc</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-core-asl</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
   </dependencies>
 
 </project>

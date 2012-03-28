@@ -43,8 +43,9 @@
   </licenses>
 
   <modules>
-    <module>weaver</module>
     <module>modelProvider</module>
+    <module>agent</module>
+    <module>weaver</module>
     <module>modelUser</module>
     <module>transformer</module>
   </modules>
