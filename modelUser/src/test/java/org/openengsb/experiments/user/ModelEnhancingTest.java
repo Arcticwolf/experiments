@@ -1,18 +1,18 @@
-package org.openengsb.experiments.weaver;
+package org.openengsb.experiments.user;
+
+import java.io.File;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.util.List;
 
 import org.junit.Test;
 import org.openengsb.experiments.provider.model.TestModel;
 import org.openengsb.experiments.provider.model.TestModelObject;
 import org.openengsb.experiments.provider.util.ModelUtils;
 
-public class ModelWeaverTest {
+public class ModelEnhancingTest {
 
     @Test
     public void testIfModelIsTestModel_shouldWork() {

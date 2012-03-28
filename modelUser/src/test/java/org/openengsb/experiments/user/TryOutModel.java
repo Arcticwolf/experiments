@@ -1,4 +1,4 @@
-package org.openengsb.experiments.weaver;
+package org.openengsb.experiments.user;
 
 import java.io.File;
 

@@ -26,7 +26,7 @@ public class Activator implements BundleActivator {
     @Override
     public void start(BundleContext context) throws Exception {
         System.out.println("Start User");
-        TestObject2 object = new TestObject2();
+        Model2 object = new Model2();
         object.setId(42);
         object.setName("test");
         System.out.println("see if waving worked");
