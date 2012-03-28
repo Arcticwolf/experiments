@@ -31,7 +31,7 @@ public class FileWrapper {
         this.filename = filename;
     }
 
-    public File getFile() {
+    public File returnFile() {
         if (file == null) {
             deserialize();
         }

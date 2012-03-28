@@ -5,6 +5,9 @@ public class TestModelObject {
     private Object value;
     private Class<?> type;
     
+    public TestModelObject() {
+    }
+    
     public TestModelObject(String key, Object value, Class<?> type) {
         this.key = key;
         this.value = value;

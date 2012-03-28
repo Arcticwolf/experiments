@@ -7,4 +7,6 @@ public interface TestModel {
     List<TestModelObject> getModelObjects();
 
     String getModelId();
+    
+    Object createInstance(List<TestModelObject> objects);
 }

@@ -17,6 +17,7 @@ public abstract class Weaver implements WeavingHook {
     public Weaver() {
         cp = ClassPool.getDefault();
         cp.importPackage("java.util");
+        cp.importPackage("java.lang.reflect");
         cp.importPackage("org.openengsb.experiments.provider.model");
         cp.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
     }

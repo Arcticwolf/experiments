@@ -80,6 +80,7 @@ public class ModelWeaver extends Weaver {
 
     private CtMethod generateGetModelObjects(CtClass clazz) throws NotFoundException,
         CannotCompileException, ClassNotFoundException {
+        addCreateInstance(clazz);
         CtMethod m = new CtMethod(cp.get(List.class.getName()), "getModelObjects", new CtClass[]{}, clazz);
 
         StringBuilder builder = new StringBuilder();
@@ -126,7 +127,33 @@ public class ModelWeaver extends Weaver {
         setterName = setterName + property.substring(1);
         CtClass[] params = new CtClass[]{ cp.get(FileWrapper.class.getName()) };
         CtMethod newFunc = new CtMethod(CtClass.voidType, funcName, params, clazz);
-        newFunc.setBody("{ " + setterName + "($1.getFile());\n }");
+        newFunc.setBody("{ " + setterName + "($1.returnFile());\n }");
         clazz.addMethod(newFunc);
+    }
+
+    private void addCreateInstance(CtClass clazz) {
+        CtMethod create;
+        StringBuilder builder;
+        try {
+            create = new CtMethod(cp.get(Object.class.getName()), "createInstance",
+                new CtClass[]{ cp.get(List.class.getName()) }, clazz);
+            builder = new StringBuilder();
+            builder.append("{\nObject instance = null;").append("try {\n");
+            builder.append("instance = $class.newInstance();\n").append("for(int i = 0; i < $1.size(); i++)");
+            builder.append("{\n").append("TestModelObject tmo = (TestModelObject)$1.get(i);\n");
+            builder.append("String key  = tmo.getKey();\n").append("Object value = tmo.getValue();\n");
+            builder.append("Class type = tmo.getType();\n try {\n Method m = $class.getMethod(\"set\" + ");
+            builder.append("Character.toUpperCase(key.charAt(0)) + key.substring(1), new Class[] { type });\n");
+            builder.append("System.out.println(key+\":\"+value.getClass().getName());");
+            builder.append("m.invoke(instance, new Object[] {value });\n } catch(Exception e) {\n");
+            builder.append("System.err.println(\"error occured\");e.printStackTrace();\n}\n}\n} catch (Exception e)");
+            builder.append("{ \ne.printStackTrace();return null;\n }\nreturn instance;\n}");
+            create.setBody(builder.toString());
+            clazz.addMethod(create);
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        } catch (CannotCompileException e) {
+            e.printStackTrace();
+        }
     }
 }
