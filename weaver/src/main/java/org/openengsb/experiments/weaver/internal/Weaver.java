@@ -9,11 +9,9 @@ import org.osgi.framework.hooks.weaving.WovenClass;
 import javassist.CannotCompileException;
 
 public abstract class Weaver implements WeavingHook {
-    protected ManipulationUtils utils;
     
     public Weaver() {
-        utils = ManipulationUtils.createInstance();
-        utils.appendClassLoader(this.getClass().getClassLoader());
+        ManipulationUtils.appendClassLoader(this.getClass().getClassLoader());
     }
     
     @Override

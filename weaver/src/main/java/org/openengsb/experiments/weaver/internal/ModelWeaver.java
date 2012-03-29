@@ -19,6 +19,8 @@ package org.openengsb.experiments.weaver.internal;
 
 import java.io.IOException;
 
+import org.openengsb.experiments.provider.util.ManipulationUtils;
+
 import javassist.CannotCompileException;
 
 public class ModelWeaver extends Weaver {
@@ -29,11 +31,6 @@ public class ModelWeaver extends Weaver {
 
     @Override
     public byte[] doActualWeaving(byte[] byteCode) throws IOException, CannotCompileException {
-        return utils.enhanceModel(byteCode);
-    }
-
-    public Object appendInterfaceIfModelAnnotation(byte[] byteCode) throws InstantiationException,
-        IllegalAccessException, CannotCompileException {
-        return utils.appendInterfaceIfModelAnnotation(byteCode);
+        return ManipulationUtils.enhanceModel(byteCode);
     }
 }

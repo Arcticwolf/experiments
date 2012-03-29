@@ -20,35 +20,25 @@ import javassist.LoaderClassPath;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
-public final class ManipulationUtils {
-    private ClassPool cp = ClassPool.getDefault();
-    private boolean initiated = false;
+public final class ManipulationUtils {    
+    private static ClassPool cp = ClassPool.getDefault();
+    private static boolean initiated = false;
 
     private ManipulationUtils() {
-        cp = ClassPool.getDefault();
-        cp.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
-        initiate();
-    }
-    
-    public static ManipulationUtils createInstance() {
-        ManipulationUtils utils = new ManipulationUtils();
-        return utils;
     }
 
-    public void appendClassLoader(ClassLoader loader) {
+    public static void appendClassLoader(ClassLoader loader) {
         cp.appendClassPath(new LoaderClassPath(loader));
-        System.out.println("ClassLoader added");
     }
 
-    private void initiate() {
+    private static void initiate() {
         cp.importPackage("java.util");
         cp.importPackage("java.lang.reflect");
         cp.importPackage("org.openengsb.experiments.provider.model");
-        System.out.println("ManipulationUtils instantiated");
         initiated = true;
     }
 
-    public byte[] enhanceModel(byte[] byteCode) throws IOException, CannotCompileException {
+    public static byte[] enhanceModel(byte[] byteCode) throws IOException, CannotCompileException {
         CtClass cc = doModelModifications(byteCode);
         byte[] newClass = cc.toBytecode();
         cc.defrost();
@@ -56,16 +46,7 @@ public final class ManipulationUtils {
         return newClass;
     }
 
-    public Object appendInterfaceIfModelAnnotation(byte[] byteCode) throws InstantiationException,
-        IllegalAccessException, CannotCompileException {
-        CtClass cc = doModelModifications(byteCode);
-        Object newObject = cc.toClass().newInstance();
-        cc.defrost();
-        cc.detach();
-        return newObject;
-    }
-
-    private CtClass doModelModifications(byte[] byteCode) {
+    private static CtClass doModelModifications(byte[] byteCode) {
         if (!initiated) {
             initiate();
         }
@@ -97,7 +78,7 @@ public final class ManipulationUtils {
         return null;
     }
 
-    private CtMethod generateGetModelObjects(CtClass clazz) throws NotFoundException,
+    private static CtMethod generateGetModelObjects(CtClass clazz) throws NotFoundException,
         CannotCompileException, ClassNotFoundException {
         CtMethod m = new CtMethod(cp.get(List.class.getName()), "getModelObjects", new CtClass[]{}, clazz);
 
@@ -113,13 +94,11 @@ public final class ManipulationUtils {
                     builder.append(methodName).append("());\n").append(wrapperName).append(".serialize();\n");
                     builder.append("elements.add(new TestModelObject(\"");
                     builder.append(wrapperName).append("\", ").append(wrapperName);
-//                    builder.append("));\n");
                     builder.append(", ").append(wrapperName).append(".getClass()));\n");
                     addFileFunction(clazz, property);
                 } else {
                     builder.append("elements.add(new TestModelObject(\"");
                     builder.append(property).append("\", ").append(methodName).append("()");
-//                    builder.append("));\n");
                     builder.append(", ").append(methodName).append("().getClass()));\n");
                 }
             }
@@ -142,7 +121,7 @@ public final class ManipulationUtils {
         return m;
     }
 
-    private void addFileFunction(CtClass clazz, String property)
+    private static void addFileFunction(CtClass clazz, String property)
         throws NotFoundException, CannotCompileException {
         String wrapperName = property + "wrapper";
         String funcName = "set";

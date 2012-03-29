@@ -11,11 +11,9 @@ import org.openengsb.experiments.provider.util.ManipulationUtils;
 import javassist.CannotCompileException;
 
 public class MyAgent implements ClassFileTransformer {
-    private static ManipulationUtils utils;
     
     public static void premain(String agentArgs, Instrumentation inst) {
         System.out.println("MyAgent was started - new version");
-        utils = ManipulationUtils.createInstance();
         inst.addTransformer(new MyAgent());
     }
 
@@ -29,7 +27,7 @@ public class MyAgent implements ClassFileTransformer {
         }
         
         try {
-            return utils.enhanceModel(arg4);
+            return ManipulationUtils.enhanceModel(arg4);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (CannotCompileException e) {
