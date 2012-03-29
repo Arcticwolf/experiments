@@ -6,15 +6,15 @@ import org.openengsb.experiments.provider.model.ModelId;
 @Model
 public class Model2 {
 
-    private int id;
+    private Integer id;
     private String name;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
     @ModelId
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

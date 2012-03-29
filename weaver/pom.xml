@@ -100,11 +100,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicemix.bundles</groupId>
-      <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
-      <version>3.12.1.GA_3</version>
-    </dependency>
-    <dependency>
       <groupId>org.openengsb.experiments</groupId>
       <artifactId>org.openengsb.experiments.provider</artifactId>
       <version>3.0.0-SNAPSHOT</version>

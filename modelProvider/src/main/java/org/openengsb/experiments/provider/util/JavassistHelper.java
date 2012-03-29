@@ -1,4 +1,4 @@
-package org.openengsb.experiments.weaver.internal;
+package org.openengsb.experiments.provider.util;
 
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -7,10 +7,10 @@ import javassist.bytecode.ClassFile;
 import javassist.bytecode.MethodInfo;
 
 public final class JavassistHelper {
-    
+
     private JavassistHelper() {
     }
-    
+
     public static boolean hasAnnotation(CtClass clazz, String annotationName) {
         ClassFile cf = clazz.getClassFile2();
         AnnotationsAttribute ainfo = (AnnotationsAttribute)
@@ -41,7 +41,7 @@ public final class JavassistHelper {
         }
         return exist1 || exist2;
     }
-    
+
     public static String generatePropertyName(String methodName) {
         return methodName.substring(3).toLowerCase();
     }

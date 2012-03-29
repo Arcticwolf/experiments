@@ -81,7 +81,8 @@
               This import is required since the WS package relies heavily on reflection 
               and loading of calling classes at runtime
             -->
-            <Export-Package>org.openengsb.experiments.provider.model</Export-Package>
+            <Export-Package>org.openengsb.experiments.provider.model,
+            org.openengsb.experiments.provider.util</Export-Package>
             <Import-Package>org.osgi.framework.hooks.weaving;version='[1.0.0, 2.0.0)'</Import-Package>
             <DynamicImport-Package>*</DynamicImport-Package>
             <Bundle-Activator>org.openengsb.experiments.provider.internal.Activator</Bundle-Activator>
@@ -96,6 +97,11 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
+      <version>3.12.1.GA_3</version>
     </dependency>
   </dependencies>
 
