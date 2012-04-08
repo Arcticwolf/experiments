@@ -3,6 +3,9 @@ package org.openengsb.experiments.transformer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.openengsb.experiments.transformer.internal.TransformingDescription;
@@ -94,5 +97,35 @@ public class TransformingServiceTest {
         assertThat(result.getTestA(), is("test2"));
         assertThat(result.getBlubA(), is("test3"));
         assertThat(result.getBlaA(), is("test4"));
+    }
+
+    @Test
+    public void test5() {
+        List<TransformingDescription> descriptions = service.getDescriptionsFromFile(new File("testDescription.xml"));
+        for (TransformingDescription desc : descriptions) {
+            service.saveDescription(desc);
+        }
+        
+        ModelA modelA = new ModelA();
+        modelA.setIdA("test1");
+        modelA.setTestA("test2");
+        modelA.setBlubA("test3");
+        modelA.setBlaA("test4");
+
+        ModelB resultB = service.performTransformation(ModelB.class, ModelA.class, modelA);
+        assertThat(resultB.getIdB(), is("test1"));
+        assertThat(resultB.getTestB(), is("test2"));
+        assertThat(resultB.getBlubB(), is("test3#test4"));
+        
+        ModelB modelB = new ModelB();
+        modelB.setIdB("test1");
+        modelB.setTestB("test2");
+        modelB.setBlubB("test3#test4");
+
+        ModelA resultA = service.performTransformation(ModelA.class, ModelB.class, modelB);
+        assertThat(resultA.getIdA(), is("test1"));
+        assertThat(resultA.getTestA(), is("test2"));
+        assertThat(resultA.getBlubA(), is("test3"));
+        assertThat(resultA.getBlaA(), is("test4"));
     }
 }

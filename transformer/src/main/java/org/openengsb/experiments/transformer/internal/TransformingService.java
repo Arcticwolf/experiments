@@ -1,15 +1,33 @@
 package org.openengsb.experiments.transformer.internal;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 public class TransformingService {
     private List<TransformingDescription> descriptions;
 
     public TransformingService() {
         descriptions = new ArrayList<TransformingDescription>();
+    }
+    
+    public List<TransformingDescription> getDescriptionsFromFile(File file) {
+        List<TransformingDescription> desc = null;
+        try {
+            XMLReader xr = XMLReaderFactory.createXMLReader();
+            MyXMLReader reader = new MyXMLReader();
+            xr.setContentHandler(reader);
+            xr.parse(file.getAbsolutePath());
+            desc = reader.getResult();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return desc;
     }
 
     public void saveDescription(TransformingDescription td) {
