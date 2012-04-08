@@ -56,7 +56,6 @@ public class MyXMLReader extends DefaultHandler2 {
         }
         for (String ignore : ignores) {
             if (fieldName.equals(ignore)) {
-                System.out.println("ignore = true");
                 return true;
             }
         }
