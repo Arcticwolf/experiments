@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openengsb.experiments.transformer.internal.TransformingDescription;
+import org.openengsb.experiments.transformer.internal.TransformationDescription;
 import org.openengsb.experiments.transformer.internal.TransformingService;
 import org.openengsb.experiments.transformer.models.ModelA;
 import org.openengsb.experiments.transformer.models.ModelB;
@@ -23,7 +23,7 @@ public class TransformingServiceTest {
 
     @Test
     public void test1() {
-        TransformingDescription desc = new TransformingDescription(ModelA.class, ModelB.class);
+        TransformationDescription desc = new TransformationDescription(ModelA.class, ModelB.class);
         desc.forwardField("idA", "idB");
         desc.forwardField("testA", "testB");
         desc.forwardField("blubA", "blubB");
@@ -42,7 +42,7 @@ public class TransformingServiceTest {
 
     @Test
     public void test2() {
-        TransformingDescription desc = new TransformingDescription(ModelA.class, ModelB.class);
+        TransformationDescription desc = new TransformationDescription(ModelA.class, ModelB.class);
         desc.forwardField("idA", "testB");
         desc.forwardField("testA", "blubB");
         desc.forwardField("blubA", "idB");
@@ -61,7 +61,7 @@ public class TransformingServiceTest {
 
     @Test
     public void test3() {
-        TransformingDescription desc = new TransformingDescription(ModelA.class, ModelB.class);
+        TransformationDescription desc = new TransformationDescription(ModelA.class, ModelB.class);
         desc.forwardField("idA", "idB");
         desc.forwardField("testA", "testB");
         desc.concatField("blubB", "#", "blubA", "blaA");
@@ -81,7 +81,7 @@ public class TransformingServiceTest {
 
     @Test
     public void test4() {
-        TransformingDescription desc = new TransformingDescription(ModelB.class, ModelA.class);
+        TransformationDescription desc = new TransformationDescription(ModelB.class, ModelA.class);
         desc.forwardField("idB", "idA");
         desc.forwardField("testB", "testA");
         desc.splitField("blubB", "#", "blubA", "blaA");
@@ -101,8 +101,8 @@ public class TransformingServiceTest {
 
     @Test
     public void test5() {
-        List<TransformingDescription> descriptions = service.getDescriptionsFromFile(new File("testDescription.xml"));
-        for (TransformingDescription desc : descriptions) {
+        List<TransformationDescription> descriptions = service.getDescriptionsFromFile(new File("testDescription.xml"));
+        for (TransformationDescription desc : descriptions) {
             service.saveDescription(desc);
         }
         

@@ -10,14 +10,14 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class TransformingService {
-    private List<TransformingDescription> descriptions;
+    private List<TransformationDescription> descriptions;
 
     public TransformingService() {
-        descriptions = new ArrayList<TransformingDescription>();
+        descriptions = new ArrayList<TransformationDescription>();
     }
     
-    public List<TransformingDescription> getDescriptionsFromFile(File file) {
-        List<TransformingDescription> desc = null;
+    public List<TransformationDescription> getDescriptionsFromFile(File file) {
+        List<TransformationDescription> desc = null;
         try {
             XMLReader xr = XMLReaderFactory.createXMLReader();
             MyXMLReader reader = new MyXMLReader();
@@ -30,8 +30,8 @@ public class TransformingService {
         return desc;
     }
 
-    public void saveDescription(TransformingDescription td) {
-        for (TransformingDescription desc : descriptions) {
+    public void saveDescription(TransformationDescription td) {
+        for (TransformationDescription desc : descriptions) {
             if (desc.getSource().equals(td.getSource()) && desc.getTarget().equals(td.getTarget())) {
                 descriptions.remove(desc);
                 descriptions.add(td);
@@ -41,8 +41,8 @@ public class TransformingService {
         descriptions.add(td);
     }
 
-    public void deleteDescription(TransformingDescription td) {
-        for (TransformingDescription desc : descriptions) {
+    public void deleteDescription(TransformationDescription td) {
+        for (TransformationDescription desc : descriptions) {
             if (desc.getSource().equals(td.getSource()) && desc.getTarget().equals(td.getTarget())) {
                 descriptions.remove(desc);
                 return;
@@ -53,8 +53,8 @@ public class TransformingService {
     @SuppressWarnings("unchecked")
     public <T> T performTransformation(Class<T> targetClass, Class<?> sourceClass, Object source) {
         try {
-            TransformingDescription desc = null;
-            for (TransformingDescription td : descriptions) {
+            TransformationDescription desc = null;
+            for (TransformationDescription td : descriptions) {
                 if (td.getSource().equals(sourceClass) && td.getTarget().equals(targetClass)) {
                     desc = td;
                     break;
@@ -71,7 +71,7 @@ public class TransformingService {
         throw new IllegalArgumentException("no description for this class pair defined");
     }
 
-    private Object doActualTransformationSteps(TransformingDescription td, Object source)
+    private Object doActualTransformationSteps(TransformationDescription td, Object source)
         throws InstantiationException, IllegalAccessException {
         Object result = td.getTarget().newInstance();
         Method getter;

@@ -26,9 +26,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
 
 public class MyXMLReader extends DefaultHandler2 {
-    private List<TransformingDescription> descriptions;
+    private List<TransformationDescription> descriptions;
 
-    private TransformingDescription activeDescription;
+    private TransformationDescription activeDescription;
     private MODE activeMode;
     private List<String> sourceFields;
     private List<String> targetFields;
@@ -42,7 +42,7 @@ public class MyXMLReader extends DefaultHandler2 {
     }
 
     public MyXMLReader() {
-        descriptions = new ArrayList<TransformingDescription>();
+        descriptions = new ArrayList<TransformationDescription>();
         sourceFields = new ArrayList<String>();
         targetFields = new ArrayList<String>();
     }
@@ -72,7 +72,7 @@ public class MyXMLReader extends DefaultHandler2 {
             try {
                 String source = attributes.getValue("source");
                 String target = attributes.getValue("target");
-                activeDescription = new TransformingDescription(Class.forName(source), Class.forName(target));
+                activeDescription = new TransformationDescription(Class.forName(source), Class.forName(target));
             } catch (Exception e) {
                 throw new IllegalArgumentException("something happened");
             }
@@ -133,7 +133,7 @@ public class MyXMLReader extends DefaultHandler2 {
         }
     }
 
-    public List<TransformingDescription> getResult() {
+    public List<TransformationDescription> getResult() {
         return descriptions;
     }
 }
